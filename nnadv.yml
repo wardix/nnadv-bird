@@ -1,0 +1,19 @@
+---
+upstream:
+- upstreamx
+- upstreamy
+- upstreamz
+advertisement:
+  10.0.0.0/24:
+    upstreamx: 1
+    upstreamy: 2
+    upstreamz: 0
+  10.0.1.0/24:
+    upstreamx: 3
+    upstreamy: 1
+    upstreamz: 2
+  10.0.2.0/24:
+    upstreamx: 2
+    upstreamy: 3
+    upstreamz: 1
+...
