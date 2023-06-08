@@ -16,20 +16,21 @@ def transform_config(config):
     return advertisement
 
 
-def generate_bird_filter(filter_name, prefix_map, asn):
-    body_filter = ''
+def generate_bird_filter_content(filtername_format, peer, prefix_map, asn):
+    filter_content = ''
     for prefix, prepend in prefix_map.items():
         if prepend == 1:
-            body_filter += '  if (net = %s) then accept;\n' % (prefix,)
+            filter_content += '  if (net = %s) then accept;\n' % (prefix,)
             continue
-        body_filter += '  if (net = %s) then {\n' % (prefix,)
+        filter_content += '  if (net = %s) then {\n' % (prefix,)
         for _ in range(prepend):
-            body_filter += '    bgp_path.prepend(%s);\n' % (asn,)
-        body_filter += '    accept;\n  }\n'
+            filter_content += '    bgp_path.prepend(%s);\n' % (asn,)
+        filter_content += '    accept;\n  }\n'
 
-    body_filter += '  reject;\n'
+    filter_content += '  reject;\n'
 
-    filter = "filter export_%s\n{\n%s}" % (filter_name, body_filter)
+    filtername = filtername_format % (peer,)
+    filter = "filter %s\n{\n%s}" % (filtername, filter_content)
     return filter
 
 
@@ -41,6 +42,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--config', required=True, help='Path to config file')
     parser.add_argument('--filename-format', required=True, help='File name format')
+    parser.add_argument('--filtername-format', required=True, help='Filter name format')
     parser.add_argument('--asn', required=True, help='AS number')
     args = parser.parse_args()
 
@@ -50,7 +52,7 @@ def main():
     advertisement = transform_config(config)
     for peer, prefix in advertisement.items():
         file = generate_bird_filter_file(args.filename_format, peer)
-        filter = generate_bird_filter(peer, prefix, args.asn)
+        filter = generate_bird_filter_content(args.filtername_format, peer, prefix, args.asn)
         with open(file, 'w') as f:
             f.write(filter)
 
