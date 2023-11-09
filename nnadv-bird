@@ -20,17 +20,17 @@ def generate_bird_filter_content(filtername_format, peer, prefix_map, asn):
     filter_content = ""
     for prefix, prepend in prefix_map.items():
         if prepend == 1:
-            filter_content += "  if (net = %s) then accept;\n" % (prefix,)
+            filter_content += f"  if (net = {prefix}) then accept;\n"
             continue
-        filter_content += "  if (net = %s) then {\n" % (prefix,)
+        filter_content += f"  if (net = {prefix}) then {{\n"
         for _ in range(prepend):
-            filter_content += "    bgp_path.prepend(%s);\n" % (asn,)
+            filter_content += f"    bgp_path.prepend({asn});\n"
         filter_content += "    accept;\n  }\n"
 
     filter_content += "  reject;\n"
 
     filtername = filtername_format % (peer,)
-    filter = "filter %s\n{\n%s}" % (filtername, filter_content)
+    filter = f"filter {filtername}\n{{\n{filter_content}}}"
     return filter
 
 
