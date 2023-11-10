@@ -1,8 +1,4 @@
 ---
-upstream:
-- upstreamx
-- upstreamy
-- upstreamz
 advertisement:
   10.0.0.0/24:
     upstreamx: 1

@@ -6,13 +6,13 @@ import argparse
 
 def transform_config(config):
     advertisement = {}
-    for upstream in config["upstream"]:
-        advertisement[upstream] = {}
 
     for prefix, peers in config["advertisement"].items():
-        for upstream in config["upstream"]:
-            if peers[upstream]:
-                advertisement[upstream][prefix] = peers[upstream]
+        for upstream, prepend in peers.items():
+            if not upstream in advertisement:
+                advertisement[upstream] = {}
+            if prepend:
+                advertisement[upstream][prefix] = prepend
     return advertisement
 
 
