@@ -2,6 +2,7 @@
 
 import yaml
 import argparse
+import os
 
 
 def transform_config(config):
@@ -16,8 +17,10 @@ def transform_config(config):
     return advertisement
 
 
-def generate_bird_filter_content(filtername_format, peer, prefix_map, asn):
-    filter_content = ""
+def generate_bird_filter_content(
+    filtername_format, custom_directory, peer, prefix_map, asn
+):
+    filter_content = f'  include "{custom_directory}/*.conf";'
     for prefix, prepend in prefix_map.items():
         filter_content += f"  if (net = {prefix}) then {{\n"
         for _ in range(prepend - 1):
@@ -31,7 +34,7 @@ def generate_bird_filter_content(filtername_format, peer, prefix_map, asn):
     return filter
 
 
-def generate_bird_filter_file(template, filter_name):
+def generate_filename(template, filter_name):
     return template % (filter_name,)
 
 
@@ -39,6 +42,9 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, help="Path to config file")
     parser.add_argument("--filename-format", required=True, help="File name format")
+    parser.add_argument(
+        "--customdir-format", required=True, help="Custom directory name format"
+    )
     parser.add_argument("--filtername-format", required=True, help="Filter name format")
     parser.add_argument("--asn", required=True, help="AS number")
     args = parser.parse_args()
@@ -48,11 +54,13 @@ def main():
 
     advertisement = transform_config(config)
     for peer, prefix in advertisement.items():
-        file = generate_bird_filter_file(args.filename_format, peer)
+        filter_file = generate_filename(args.filename_format, peer)
+        custom_directory = generate_filename(args.customdir_format, peer)
         filter = generate_bird_filter_content(
-            args.filtername_format, peer, prefix, args.asn
+            args.filtername_format, custom_directory, peer, prefix, args.asn
         )
-        with open(file, "w") as f:
+        os.makedirs(custom_directory, exist_ok=True)
+        with open(filter_file, "w") as f:
             f.write(filter)
 
 
