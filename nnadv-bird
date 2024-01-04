@@ -20,7 +20,7 @@ def transform_config(config):
 def generate_bird_filter_content(
     filtername_format, custom_directory, peer, prefix_map, asn
 ):
-    filter_content = f'  include "{custom_directory}/*.conf";'
+    filter_content = f'  include "{custom_directory}/*.conf";\n'
     for prefix, prepend in prefix_map.items():
         filter_content += f"  if (net = {prefix}) then {{\n"
         for _ in range(prepend - 1):
